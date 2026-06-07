@@ -1,65 +1,292 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+
+import {
+  Box,
+  Container,
+  Typography,
+  Grid,
+  Card,
+  CardContent,
+  Paper,
+  TextField,
+  MenuItem,
+  Pagination,
+} from "@mui/material";
+
+import NotificationCard from "../components/NotificationCard";
+import { mockNotifications } from "../services/mockNotifications";
 
 export default function Home() {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterType, setFilterType] = useState("All");
+  const [page, setPage] = useState(1);
+
+  const totalCount = mockNotifications.length;
+
+  const placementCount = mockNotifications.filter(
+    (n) => n.Type === "Placement"
+  ).length;
+
+  const resultCount = mockNotifications.filter(
+    (n) => n.Type === "Result"
+  ).length;
+
+  const eventCount = mockNotifications.filter(
+    (n) => n.Type === "Event"
+  ).length;
+
+  const filteredNotifications = mockNotifications.filter(
+    (notification) => {
+      const matchesSearch =
+        notification.Message
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase());
+
+      const matchesType =
+        filterType === "All" ||
+        notification.Type === filterType;
+
+      return matchesSearch && matchesType;
+    }
+  );
+
+  const notificationsPerPage = 3;
+
+  const startIndex =
+    (page - 1) * notificationsPerPage;
+
+  const paginatedNotifications =
+    filteredNotifications.slice(
+      startIndex,
+      startIndex + notificationsPerPage
+    );
+
+  const totalPages = Math.ceil(
+    filteredNotifications.length /
+      notificationsPerPage
+  );
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <Box
+      sx={{
+        minHeight: "100vh",
+        background:
+          "linear-gradient(135deg,#0f172a,#1e293b)",
+        color: "white",
+        py: 4,
+      }}
+    >
+      <Container maxWidth="xl">
+        <Typography
+          variant="h2"
+          fontWeight="bold"
+          gutterBottom
+        >
+          🎓 Campus Command Center
+        </Typography>
+
+        <Typography
+          variant="h5"
+          sx={{ mb: 4 }}
+        >
+          Smart Notification Dashboard
+        </Typography>
+
+        {/* Statistics Cards */}
+
+        <Grid container spacing={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
+            <Card>
+              <CardContent>
+                <Typography variant="h5">
+                  Total Notifications
+                </Typography>
+
+                <Typography variant="h2">
+                  {totalCount}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 3 }}>
+            <Card>
+              <CardContent>
+                <Typography variant="h5">
+                  Placements
+                </Typography>
+
+                <Typography variant="h2">
+                  {placementCount}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 3 }}>
+            <Card>
+              <CardContent>
+                <Typography variant="h5">
+                  Results
+                </Typography>
+
+                <Typography variant="h2">
+                  {resultCount}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 3 }}>
+            <Card>
+              <CardContent>
+                <Typography variant="h5">
+                  Events
+                </Typography>
+
+                <Typography variant="h2">
+                  {eventCount}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+
+        {/* Priority Inbox */}
+
+        <Box sx={{ mt: 5 }}>
+          <Paper
+            sx={{
+              p: 4,
+              borderRadius: 4,
+              background:
+                "linear-gradient(135deg,#7c3aed,#4f46e5)",
+              color: "white",
+            }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            <Typography
+              variant="h4"
+              fontWeight="bold"
+            >
+              ⭐ Priority Inbox
+            </Typography>
+
+            <Typography sx={{ mt: 1 }}>
+              Top High Priority Notifications
+            </Typography>
+
+            <Box sx={{ mt: 2 }}>
+              <Typography>
+                • Microsoft Hiring
+              </Typography>
+
+              <Typography>
+                • Mid Sem Results Published
+              </Typography>
+
+              <Typography>
+                • Google Hiring
+              </Typography>
+            </Box>
+          </Paper>
+        </Box>
+
+        {/* Search & Filter */}
+
+        <Box sx={{ mt: 5, mb: 4 }}>
+          <Grid container spacing={2}>
+            <Grid size={{ xs: 12, md: 8 }}>
+              <TextField
+                fullWidth
+                label="Search Notifications"
+                variant="outlined"
+                value={searchTerm}
+                onChange={(e) =>
+                  setSearchTerm(e.target.value)
+                }
+                sx={{
+                  backgroundColor: "white",
+                  borderRadius: 2,
+                }}
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12, md: 4 }}>
+              <TextField
+                select
+                fullWidth
+                label="Filter Type"
+                value={filterType}
+                onChange={(e) =>
+                  setFilterType(e.target.value)
+                }
+                sx={{
+                  backgroundColor: "white",
+                  borderRadius: 2,
+                }}
+              >
+                <MenuItem value="All">
+                  All
+                </MenuItem>
+
+                <MenuItem value="Placement">
+                  Placement
+                </MenuItem>
+
+                <MenuItem value="Result">
+                  Result
+                </MenuItem>
+
+                <MenuItem value="Event">
+                  Event
+                </MenuItem>
+              </TextField>
+            </Grid>
+          </Grid>
+        </Box>
+
+        {/* Recent Notifications */}
+
+        <Box sx={{ mt: 6 }}>
+          <Typography
+            variant="h4"
+            gutterBottom
           >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+            Recent Notifications
+          </Typography>
+
+          {paginatedNotifications.map(
+            (notification) => (
+              <NotificationCard
+                key={notification.ID}
+                notification={notification}
+              />
+            )
+          )}
+        </Box>
+
+        {/* Pagination */}
+
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            mt: 4,
+            pb: 4,
+          }}
+        >
+          <Pagination
+            count={totalPages}
+            page={page}
+            onChange={(_, value) =>
+              setPage(value)
+            }
+            color="primary"
+          />
+        </Box>
+      </Container>
+    </Box>
   );
 }
